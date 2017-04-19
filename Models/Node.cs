@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 namespace DemandDriven.Models
 {
@@ -13,8 +12,6 @@ namespace DemandDriven.Models
         }
 
         public int Id { get; set; }
-        [Required]
-        [RegularExpression(@"^[A-Z]{3}$")]
         public string Name { get; set; }
 
         public virtual ICollection<Edge> EdgeChildNode { get; set; }

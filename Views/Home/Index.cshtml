@@ -9,3 +9,9 @@
     <input type="file" name="file" />
     <input type="submit" name="Submit" id="Submit" value="Upload" />
 }
+
+@using (Html.BeginForm("Download", "Home", FormMethod.Get, new { enctype = "multipart/form-data" }))
+{
+    <input type="guid" name="guid" />
+    <input type="submit" name="Request" id="Download" value="Download" />
+}

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using DemandDriven.Pocos;
 using Xunit;
 
@@ -38,11 +36,11 @@ namespace DemandDriven.Tests
             ee = new Entry {ChildName = "ABC", ParentName = "DEF", Quantity = 2};
             Assert.True(ee.Validate().Count == 0);
         }
-        
+
         [Fact]
         public void TestConverter()
         {
-            Exception exception = Assert.Throws<ArgumentException>(() => GraphFactory.Generate(InputType.CSV, null));
+            Exception exception = Assert.Throws<ArgumentException>(() => GraphFactory.Generate(InputType.CSV, string.Empty));
             Assert.Equal(CsvConverter.INVALID_CSV_ERROR, exception.Message);
 
             exception = Assert.Throws<ArgumentException>(() => GraphFactory.Generate(InputType.CSV, String.Empty));

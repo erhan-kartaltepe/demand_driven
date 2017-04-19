@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using DemandDriven.Models;
@@ -10,15 +9,13 @@ using Microsoft.EntityFrameworkCore;
 namespace DemandDriven.Data
 {
 
+    /// <summary>
+    /// Representation of the Data Context
+    /// </summary>
     public class Context {
 
         private const int BUFFER_SIZE = 1000;
         private const string MERGE_STATEMENT = @"MERGE INTO Node as target
-                    USING (VALUES {0}) AS source (Name) on target.Name = source.Name
-                    WHEN NOT MATCHED BY TARGET THEN
-                    INSERT (Name) VALUES (name);";
-
-        private const string INSERT_EDGES_STATEMENT = @"INSERT INTO Edge (ParentId, ChildId, Quantity)
                     USING (VALUES {0}) AS source (Name) on target.Name = source.Name
                     WHEN NOT MATCHED BY TARGET THEN
                     INSERT (Name) VALUES (name);";
@@ -29,7 +26,9 @@ namespace DemandDriven.Data
         /// </summary>
         /// <param name="names">The names to add</param>
         public void UpsertNodeNames(IList<string> names) {
-                    Console.WriteLine("----" + names.Count);
+            if (names == null) {
+                throw new ArgumentException("names cannot be null");
+            }
 
             using (var context = new MyDbDataContext()) {
 
@@ -52,8 +51,16 @@ namespace DemandDriven.Data
         /// Inserts edges into the database
         /// </summary>
         /// <param name="entries">The entries to add to the database</param>
-        public void InsertEdges(IList<Entry> entries) {
+        public string AddGraph(IList<Entry> entries) {
+            if (entries == null) {
+                throw new ArgumentException("entries cannot be null");
+            }
+
             using (var context = new MyDbDataContext()) {
+
+                Graph graph = new Graph();
+                context.Graph.Add(graph);
+                context.SaveChanges();
 
                 for (int i = 0; i < entries.Count; i+=BUFFER_SIZE) {
                     var buffer = entries.Skip(BUFFER_SIZE * i).Take(BUFFER_SIZE + i * BUFFER_SIZE);
@@ -71,10 +78,32 @@ namespace DemandDriven.Data
                         edge.ParentNodeId = nodes[e.ParentName];
                         edge.ChildNodeId = nodes[e.ChildName];
                         edge.Quantity = e.Quantity;
+                        edge.GraphId = graph.Id;
                         context.Set<Edge>().Add(edge);
                     }
                     context.SaveChanges();
+                    return graph.Guid.ToString();
                 }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Reconstruct the graph from the data model
+        /// </summary>
+        /// <param name="guid">The idenifier of the graph</param>
+        /// <returns>A list of edges</returns>
+        public IList<Entry> GetGraph(string guid) {
+            Guid guidOutput;
+            bool isValid = Guid.TryParse(guid, out guidOutput);
+
+            if (!isValid) {
+                throw new ArgumentException("guid must be a proper GUID");
+            }
+
+            using (var context = new MyDbDataContext()) {
+                return context.Edge.Where(x => x.Graph.Guid.ToString() == guid)
+                .Select(x => new Entry(x.ParentNode.Name, x.ChildNode.Name, x.Quantity)).ToList();
             }
         }
     }
