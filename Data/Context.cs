@@ -13,6 +13,14 @@ namespace DemandDriven.Data
     /// Representation of the Data Context
     /// </summary>
     public class Context {
+        /// <summary>
+        /// Creates the database if it is not created
+        /// </summary>
+        public void EnsureCreated() {
+             using (var context = new MyDbDataContext()) {
+                context.Database.EnsureCreated();
+             }
+        }
 
         private const int BUFFER_SIZE = 1000;
         private const string MERGE_STATEMENT = @"MERGE INTO Node as target

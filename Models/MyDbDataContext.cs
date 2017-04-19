@@ -13,7 +13,7 @@ namespace DemandDriven.Models
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-            optionsBuilder.UseSqlServer(@"Server=localhost;Database=demand_driven_db;user id=SA;password=St479881");
+            optionsBuilder.UseSqlServer(@"Server=xxxx;Database=demand_driven_db;user id=xxxx;password=xxxx");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
